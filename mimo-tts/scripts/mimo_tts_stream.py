@@ -36,6 +36,7 @@ def synthesize_stream(
     output: str,
     style: Optional[str],
     styles: Optional[list[str]],
+    audio_format: str = "ogg",
 ) -> None:
     api_key = os.environ.get("MIMO_API_KEY")
     if not api_key:
@@ -73,7 +74,7 @@ def synthesize_stream(
     if chunks.size == 0:
         raise RuntimeError("No audio chunks received from stream")
 
-    sf.write(output, chunks, samplerate=24000)
+    sf.write(output, chunks, samplerate=24000, format=audio_format.upper())
 
 
 def parse_args() -> argparse.Namespace:
@@ -97,7 +98,13 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Multiple style names in one <style> tag, e.g. --styles 开心 变快",
     )
-    parser.add_argument("--output", default="stream_output.wav", help="Output WAV file path")
+    parser.add_argument(
+        "--format",
+        default="ogg",
+        choices=["wav", "ogg", "mp3"],
+        help="Output audio format (default: ogg)",
+    )
+    parser.add_argument("--output", default=None, help="Output file path (default: stream_output.<format>)")
     return parser.parse_args()
 
 
@@ -112,14 +119,19 @@ def main() -> None:
     else:
         text = args.text
 
+    output_path = args.output
+    if not output_path:
+        output_path = f"stream_output.{args.format}"
+
     synthesize_stream(
         text=text,
         voice=args.voice,
-        output=args.output,
+        output=output_path,
         style=args.style,
         styles=args.styles,
+        audio_format=args.format,
     )
-    print(f"Saved streaming audio to {args.output}")
+    print(f"Saved streaming audio to {output_path}")
 
 
 if __name__ == "__main__":

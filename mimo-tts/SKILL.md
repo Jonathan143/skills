@@ -6,7 +6,7 @@ description: 用于通过小米 MiMo TTS API 执行流式文本转语音（strea
 # MiMo TTS Skill (Streaming Only)
 
 ## 目标
-帮助用户通过脚本完成 MiMo 流式语音合成，并输出可播放的 WAV 文件。
+帮助用户通过脚本完成 MiMo 流式语音合成，并输出可播放的音频文件（支持 wav/ogg/mp3 等格式, 默认 ogg）。
 
 ## 脚本文件
 - `scripts/mimo_tts_stream.py`
@@ -82,7 +82,7 @@ python scripts/mimo_tts_stream.py \
   --text "今天状态非常在线。" \
   --styles 开心 变快 \
   --voice mimo_default \
-  --output multi_styles_one_tag.wav
+  --output multi_styles_one_tag.ogg
 ```
 
 ### 3) 一段文本包含多个 `<style>` 分段
@@ -91,21 +91,23 @@ python scripts/mimo_tts_stream.py \
 python scripts/mimo_tts_stream.py \
   --text "<style>开心</style>明天就是周五了，真开心！<style>东北话</style>哎呀妈呀，这天儿也忒冷了吧！<style>粤语</style>呢个真係好正啊！" \
   --voice mimo_default \
-  --output mixed_style_segments.wav
+  --output mixed_style_segments.ogg
 ```
 
 ### 4) 细粒度音频标签长文本（推荐 text file）
-将文本写入 `input.txt` 后调用：
+将文本写入 `input.txt` 后调用（同时指定输出 mp3 格式）：
 ```bash
 python scripts/mimo_tts_stream.py \
   --text-file input.txt \
   --voice mimo_default \
-  --output fine_grained_tags.wav
+  --format mp3 \
+  --output fine_grained_tags.mp3
 ```
 
 ## 结果保存与验证
-- 输出文件由 `--output` 指定。
-- 生成后可直接播放 WAV 文件验证。
+- 可通过 `--format` 参数指定音频格式（支持 wav/ogg/mp3，默认 ogg）。
+- 输出文件名可通过 `--output` 自定义，未指定时默认为 `stream_output.<format>`。
+- 生成后可直接播放对应格式文件以验证。
 
 ## 易错点
 - 未设置 `MIMO_API_KEY`。
