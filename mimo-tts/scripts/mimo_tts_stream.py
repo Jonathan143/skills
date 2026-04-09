@@ -5,8 +5,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-import numpy as np
-import soundfile as sf
+import subprocess
 from openai import OpenAI
 
 
@@ -59,7 +58,7 @@ def synthesize_stream(
         stream=True,
     )
 
-    chunks = np.array([], dtype=np.float32)
+    pcm_data = bytearray()
     for chunk in completion:
         if not chunk.choices:
             continue
@@ -68,13 +67,31 @@ def synthesize_stream(
         if not audio:
             continue
         pcm_bytes = base64.b64decode(audio["data"])
-        np_pcm = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-        chunks = np.concatenate((chunks, np_pcm))
+        pcm_data.extend(pcm_bytes)
 
-    if chunks.size == 0:
+    if not pcm_data:
         raise RuntimeError("No audio chunks received from stream")
 
-    sf.write(output, chunks, samplerate=24000, format=audio_format.upper())
+    command = [
+        "ffmpeg",
+        "-y",
+        "-f", "s16le",
+        "-ar", "24000",
+        "-ac", "1",
+        "-i", "-",
+        "-f", audio_format,
+        output,
+    ]
+    try:
+        subprocess.run(
+            command,
+            input=pcm_data,
+            check=True,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"FFmpeg encoding failed:\n{e.stderr.decode('utf-8', errors='replace')}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -122,6 +139,10 @@ def main() -> None:
     output_path = args.output
     if not output_path:
         output_path = f"stream_output.{args.format}"
+        audio_format = args.format
+    else:
+        ext = Path(output_path).suffix.lstrip(".").lower()
+        audio_format = ext if ext else args.format
 
     synthesize_stream(
         text=text,
@@ -129,7 +150,7 @@ def main() -> None:
         output=output_path,
         style=args.style,
         styles=args.styles,
-        audio_format=args.format,
+        audio_format=audio_format,
     )
     print(f"Saved streaming audio to {output_path}")
 
