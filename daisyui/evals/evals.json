@@ -1,0 +1,33 @@
+{
+  "skill_name": "daisyui",
+  "evals": [
+    {
+      "id": 1,
+      "name": "build-navbar",
+      "prompt": "Create a responsive navbar with a logo, a few links, and a search input using DaisyUI.",
+      "expected_output": "A responsive navbar using `navbar`, `navbar-start`, `navbar-center`, `navbar-end`, `menu`, and `input`, with mobile-friendly layout behavior.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "theme-setup",
+      "prompt": "How do I add the 'dracula' and 'cyberpunk' themes to my DaisyUI config?",
+      "expected_output": "CSS plugin block showing `@plugin \"daisyui\" { themes: ... dracula, cyberpunk; }` plus `data-theme` usage for page or section-level theme switching.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "responsive-drawer",
+      "prompt": "Show me how to make a responsive drawer with a menu inside using DaisyUI.",
+      "expected_output": "A drawer layout using `drawer`, `drawer-toggle`, `drawer-content`, `drawer-side`, and `menu` classes.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "v5-migration-forms",
+      "prompt": "Please update this daisyUI form to v5: `<input class=\"input input-bordered\" /><input type=\"file\" class=\"file-input file-input-bordered\" />`",
+      "expected_output": "Migrated classes using `input` and `file-input` without `*-bordered` suffixes, with a short note that these bordered variants were removed in v5.",
+      "files": []
+    }
+  ]
+}
